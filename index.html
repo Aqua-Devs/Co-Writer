@@ -254,7 +254,7 @@
         async function checkAuth() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                window.location.href = 'co-writer-app.html';
+                window.location.href = 'dashboard.html';
             }
         }
 
@@ -295,7 +295,7 @@
                 
                 showSuccess('Succesvol ingelogd! Doorverwijzen...');
                 setTimeout(() => {
-                    window.location.href = 'co-writer-app.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
             } catch (error) {
                 showError(error.message);
@@ -331,7 +331,7 @@
                 
                 showSuccess('Account aangemaakt! Je wordt doorgestuurd...');
                 setTimeout(() => {
-                    window.location.href = 'co-writer-app.html';
+                    window.location.href = 'dashboard.html';
                 }, 2000);
             } catch (error) {
                 showError(error.message);

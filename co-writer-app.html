@@ -452,6 +452,7 @@
                         <span id="statusText">Opgeslagen</span>
                     </div>
                     <div class="user-email" id="userEmail"></div>
+                    <button class="btn-logout" onclick="window.location.href='dashboard.html'" style="margin-right: 0.5rem;">← Mijn Boeken</button>
                     <button class="btn-logout" id="logoutBtn">Uitloggen</button>
                 </div>
             </div>
@@ -601,16 +602,27 @@
         // Load story from Supabase
         async function loadStory() {
             try {
+                // Get project ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('project');
+
+                if (!projectId) {
+                    // No project ID, redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
                 const { data, error } = await supabase
                     .from('stories')
                     .select('*')
+                    .eq('id', projectId)
                     .eq('user_id', currentUser.id)
-                    .order('updated_at', { ascending: false })
-                    .limit(1)
                     .single();
 
-                if (error && error.code !== 'PGRST116') {
+                if (error) {
                     console.error('Error loading story:', error);
+                    alert('Project niet gevonden');
+                    window.location.href = 'dashboard.html';
                     return;
                 }
 

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-Writer - Mijn Boeken</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --text: #e8e6e3;
+            --text-dim: #a8a5a1;
+            --accent: #ff6b35;
+            --accent-soft: #ff9b7a;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 155, 122, 0.06) 0%, transparent 50%);
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-soft) 70%, transparent);
+            opacity: 0.6;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent-soft) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-email {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            color: var(--accent);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .page-subtitle {
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-new {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--surface);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .project-card:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .project-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .project-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .project-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-soft);
+            font-weight: 600;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 6px;
+            color: #ff6b6b;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 0, 0, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-dim);
+        }
+
+        .empty-state h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 0.875rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: var(--surface-hover);
+        }
+
+        .btn-create {
+            flex: 1;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+            border: none;
+            border-radius: 8px;
+            color: var(--bg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-create:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Co-Writer</h1>
+            <div class="user-info">
+                <div class="user-email" id="userEmail"></div>
+                <button class="btn-logout" id="logoutBtn">Uitloggen</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="page-title">Mijn Boeken</h2>
+        <p class="page-subtitle">Selecteer een boek om verder te schrijven, of start een nieuw project</p>
+
+        <div class="actions">
+            <button class="btn-new" id="newProjectBtn">+ Nieuw Boek</button>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Projects worden hier geladen -->
+        </div>
+
+        <div class="empty-state hidden" id="emptyState">
+            <h3>Nog geen boeken</h3>
+            <p>Klik op "Nieuw Boek" om je eerste project te starten</p>
+        </div>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal" id="newProjectModal">
+        <div class="modal-content">
+            <h3 class="modal-title">Nieuw Boek</h3>
+            <form id="newProjectForm">
+                <div class="form-group">
+                    <label for="projectTitle">Titel</label>
+                    <input type="text" id="projectTitle" placeholder="Mijn Nieuwe Roman" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="cancelBtn">Annuleren</button>
+                    <button type="submit" class="btn-create">Aanmaken</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
+        const SUPABASE_URL = 'https://sdfynuvanetpmritvaze.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZnludXZhbmV0cG1yaXR2YXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDYxODMsImV4cCI6MjA4NzA4MjE4M30.T5LBYzSUHlY8jB1ty-6WLtO4Zh8xVRyQpFhGQETYnKs';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+
+        checkAuth();
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            
+            loadProjects();
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+        // Load projects
+        async function loadProjects() {
+            try {
+                const { data, error } = await supabase
+                    .from('stories')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('updated_at', { ascending: false });
+
+                if (error) throw error;
+
+                const grid = document.getElementById('projectsGrid');
+                const emptyState = document.getElementById('emptyState');
+
+                if (!data || data.length === 0) {
+                    grid.innerHTML = '';
+                    emptyState.classList.remove('hidden');
+                    return;
+                }
+
+                emptyState.classList.add('hidden');
+                grid.innerHTML = data.map(project => createProjectCard(project)).join('');
+
+                // Add click handlers
+                document.querySelectorAll('.project-card').forEach(card => {
+                    const projectId = card.dataset.id;
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('btn-delete')) {
+                            openProject(projectId);
+                        }
+                    });
+                });
+
+                // Add delete handlers
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const projectId = e.target.dataset.id;
+                        if (confirm('Weet je zeker dat je dit boek wilt verwijderen?')) {
+                            await deleteProject(projectId);
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error loading projects:', error);
+            }
+        }
+
+        function createProjectCard(project) {
+            const draftWords = countWords(project.draft_text || '');
+            const finalWords = countWords(project.final_text || '');
+            const date = new Date(project.updated_at).toLocaleDateString('nl-NL');
+
+            return `
+                <div class="project-card" data-id="${project.id}">
+                    <div class="project-header">
+                        <div>
+                            <div class="project-title">${project.title || 'Naamloos Boek'}</div>
+                            <div class="project-date">Laatst bewerkt: ${date}</div>
+                        </div>
+                    </div>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <div class="stat-label">Draft</div>
+                            <div class="stat-value">${draftWords} woorden</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-label">Finaal</div>
+                            <div class="stat-value">${finalWords} woorden</div>
+                        </div>
+                    </div>
+                    <div class="project-actions">
+                        <button class="btn-delete" data-id="${project.id}">Verwijderen</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function countWords(text) {
+            return text.trim() ? text.trim().split(/\s+/).length : 0;
+        }
+
+        function openProject(projectId) {
+            window.location.href = `co-writer-app.html?project=${projectId}`;
+        }
+
+        async function deleteProject(projectId) {
+            try {
+                const { error } = await supabase
+                    .from('stories')
+                    .delete()
+                    .eq('id', projectId);
+
+                if (error) throw error;
+
+                loadProjects();
+            } catch (error) {
+                console.error('Error deleting project:', error);
+                alert('Fout bij verwijderen');
+            }
+        }
+
+        // New project modal
+        const modal = document.getElementById('newProjectModal');
+        const newProjectBtn = document.getElementById('newProjectBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const newProjectForm = document.getElementById('newProjectForm');
+
+        newProjectBtn.addEventListener('click', () => {
+            modal.classList.add('show');
+            document.getElementById('projectTitle').focus();
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.classList.remove('show');
+            newProjectForm.reset();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+                newProjectForm.reset();
+            }
+        });
+
+        newProjectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('projectTitle').value;
+
+            try {
+                const { data, error } = await supabase
+                    .from('stories')
+                    .insert([{
+                        user_id: currentUser.id,
+                        title: title,
+                        draft_text: '',
+                        final_text: '',
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                modal.classList.remove('show');
+                newProjectForm.reset();
+                
+                // Open the new project
+                openProject(data.id);
+
+            } catch (error) {
+                console.error('Error creating project:', error);
+                alert('Fout bij aanmaken project');
+            }
+        });
+    </script>
+</body>
+</html>
