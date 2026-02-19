@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Co-Writer - Mijn Boeken</title>
+    <title>Co-Writer - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -38,18 +38,6 @@
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--border);
-            position: relative;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-soft) 70%, transparent);
-            opacity: 0.6;
         }
 
         .header-content {
@@ -88,7 +76,6 @@
             border: 1px solid var(--accent);
             border-radius: 6px;
             color: var(--accent);
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s;
@@ -114,12 +101,77 @@
 
         .page-subtitle {
             color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        /* Stats Widget */
+        .stats-widget {
+            background: var(--surface);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
             margin-bottom: 3rem;
         }
 
-        .actions {
+        .stats-grid {
             display: flex;
-            gap: 1rem;
+            justify-content: center;
+            gap: 4rem;
+            align-items: flex-start;
+        }
+
+        .stat-box {
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .stat-value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 4rem;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            margin-top: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+            transition: width 0.3s;
+        }
+
+        .goal-text {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        .motivation {
+            text-align: center;
+            color: var(--accent-soft);
+            font-style: italic;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Actions */
+        .actions {
             margin-bottom: 2rem;
         }
 
@@ -129,7 +181,6 @@
             border: none;
             border-radius: 8px;
             color: var(--bg);
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -141,6 +192,7 @@
             box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
         }
 
+        /* Projects Grid */
         .projects-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -149,13 +201,11 @@
 
         .project-card {
             background: var(--surface);
-            backdrop-filter: blur(40px);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
             cursor: pointer;
             transition: all 0.3s;
-            position: relative;
         }
 
         .project-card:hover {
@@ -164,61 +214,41 @@
             transform: translateY(-2px);
         }
 
-        .project-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
-        }
-
         .project-title {
             font-family: 'DM Serif Display', serif;
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
-            color: var(--text);
         }
 
         .project-date {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.7rem;
             color: var(--text-dim);
+            margin-bottom: 1rem;
         }
 
         .project-stats {
             display: flex;
-            gap: 1.5rem;
-            margin-top: 1rem;
+            gap: 2rem;
             padding-top: 1rem;
             border-top: 1px solid var(--border);
         }
 
-        .stat {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .stat-label {
+        .project-stat-label {
             font-size: 0.7rem;
             color: var(--text-dim);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .stat-value {
+        .project-stat-value {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.9rem;
             color: var(--accent-soft);
             font-weight: 600;
         }
 
-        .project-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
         .btn-delete {
+            margin-top: 1rem;
             padding: 0.5rem 1rem;
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid rgba(255, 0, 0, 0.3);
@@ -226,7 +256,6 @@
             color: #ff6b6b;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.3s;
         }
 
         .btn-delete:hover {
@@ -239,68 +268,6 @@
             color: var(--text-dim);
         }
 
-        .stats-widget {
-            background: var(--surface);
-            backdrop-filter: blur(40px);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-
-        .stat-box {
-            text-align: center;
-        }
-
-        .stat-box-value {
-            font-family: 'DM Serif Display', serif;
-            font-size: 3rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-box-label {
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 0.5rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--accent), var(--accent-soft));
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .streak-emoji {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .motivational-message {
-            text-align: center;
-            color: var(--accent-soft);
-            font-style: italic;
-            margin-top: 1rem;
-        }
-    </style>
-
         .empty-state h3 {
             font-family: 'DM Serif Display', serif;
             font-size: 1.5rem;
@@ -308,6 +275,11 @@
             color: var(--text);
         }
 
+        .hidden {
+            display: none;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -316,7 +288,6 @@
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -359,7 +330,6 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             color: var(--text);
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
         }
 
@@ -382,11 +352,6 @@
             border-radius: 8px;
             color: var(--text);
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-cancel:hover {
-            background: var(--surface-hover);
         }
 
         .btn-create {
@@ -398,11 +363,6 @@
             color: var(--bg);
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-create:hover {
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
         }
     </style>
 </head>
@@ -421,39 +381,34 @@
         <h2 class="page-title">Mijn Boeken</h2>
         <p class="page-subtitle">Selecteer een boek om verder te schrijven, of start een nieuw project</p>
 
-        <!-- Writing Stats Widget -->
+        <!-- Stats Widget -->
         <div class="stats-widget">
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="streak-emoji" id="streakEmoji">🔥</div>
-                    <div class="stat-box-value" id="currentStreak">0</div>
-                    <div class="stat-box-label">Dagen Streak</div>
+                    <div class="stat-value" id="currentStreak">0</div>
+                    <div class="stat-label">Dag Streak</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-box-value" id="todayWords">0</div>
-                    <div class="stat-box-label">Woorden Vandaag</div>
+                    <div class="stat-value" id="todayWords">0</div>
+                    <div class="stat-label">Woorden Vandaag</div>
                     <div class="progress-bar">
                         <div class="progress-fill" id="progressFill" style="width: 0%"></div>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem;">
-                        Doel: <span id="dailyGoal">500</span> woorden
-                    </div>
+                    <div class="goal-text">Doel: <span id="dailyGoal">500</span> woorden</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-box-value" id="totalWords">0</div>
-                    <div class="stat-box-label">Totaal Geschreven</div>
+                    <div class="stat-value" id="totalWords">0</div>
+                    <div class="stat-label">Totaal Geschreven</div>
                 </div>
             </div>
-            <div class="motivational-message" id="motivationalMessage"></div>
+            <div class="motivation" id="motivationalMessage"></div>
         </div>
 
         <div class="actions">
             <button class="btn-new" id="newProjectBtn">+ Nieuw Boek</button>
         </div>
 
-        <div class="projects-grid" id="projectsGrid">
-            <!-- Projects worden hier geladen -->
-        </div>
+        <div class="projects-grid" id="projectsGrid"></div>
 
         <div class="empty-state hidden" id="emptyState">
             <h3>Nog geen boeken</h3>
@@ -461,7 +416,7 @@
         </div>
     </div>
 
-    <!-- New Project Modal -->
+    <!-- Modal -->
     <div class="modal" id="newProjectModal">
         <div class="modal-content">
             <h3 class="modal-title">Nieuw Boek</h3>
@@ -485,7 +440,6 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZnludXZhbmV0cG1yaXR2YXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDYxODMsImV4cCI6MjA4NzA4MjE4M30.T5LBYzSUHlY8jB1ty-6WLtO4Zh8xVRyQpFhGQETYnKs';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let currentUser = null;
 
         checkAuth();
@@ -504,31 +458,26 @@
             loadProjects();
         }
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', async () => {
             await supabase.auth.signOut();
             window.location.href = 'index.html';
         });
 
-        // Load user stats
         async function loadUserStats() {
             try {
-                // Get or create user settings
-                let { data: settings, error: settingsError } = await supabase
+                let { data: settings } = await supabase
                     .from('user_settings')
                     .select('*')
                     .eq('user_id', currentUser.id)
                     .single();
 
-                if (settingsError && settingsError.code === 'PGRST116') {
-                    // Create default settings
+                if (!settings) {
                     const { data: newSettings } = await supabase
                         .from('user_settings')
                         .insert([{
                             user_id: currentUser.id,
                             daily_word_goal: 500,
                             current_streak: 0,
-                            longest_streak: 0,
                             total_words_written: 0
                         }])
                         .select()
@@ -536,7 +485,6 @@
                     settings = newSettings;
                 }
 
-                // Get today's stats
                 const today = new Date().toISOString().split('T')[0];
                 const { data: todayStats } = await supabase
                     .from('writing_stats')
@@ -550,43 +498,25 @@
                 const currentStreak = settings?.current_streak || 0;
                 const totalWords = settings?.total_words_written || 0;
 
-                // Update UI
                 document.getElementById('currentStreak').textContent = currentStreak;
                 document.getElementById('todayWords').textContent = todayWords;
                 document.getElementById('dailyGoal').textContent = dailyGoal;
                 document.getElementById('totalWords').textContent = totalWords.toLocaleString();
 
-                // Progress bar
                 const progress = Math.min((todayWords / dailyGoal) * 100, 100);
                 document.getElementById('progressFill').style.width = `${progress}%`;
 
-                // Streak emoji
-                const streakEmoji = currentStreak >= 30 ? '🔥🔥🔥' : 
-                                   currentStreak >= 14 ? '🔥🔥' : 
-                                   currentStreak >= 7 ? '🔥' : '✨';
-                document.getElementById('streakEmoji').textContent = streakEmoji;
-
-                // Motivational message
-                let message = '';
-                if (todayWords >= dailyGoal) {
-                    message = '🎉 Doel bereikt! Je bent geweldig!';
-                } else if (todayWords >= dailyGoal * 0.5) {
-                    message = `💪 Halfway there! Nog ${dailyGoal - todayWords} woorden te gaan!`;
-                } else if (todayWords > 0) {
-                    message = `✍️ Goede start! ${dailyGoal - todayWords} woorden te gaan!`;
-                } else {
-                    message = currentStreak > 0 
-                        ? `🔥 ${currentStreak} dagen streak! Laat het niet stoppen!`
-                        : '✨ Begin vandaag met schrijven!';
-                }
+                let message = todayWords >= dailyGoal ? '🎉 Doel bereikt! Je bent geweldig!' :
+                             todayWords >= dailyGoal * 0.5 ? `💪 Halfway! Nog ${dailyGoal - todayWords} woorden!` :
+                             todayWords > 0 ? `✍️ Goede start! ${dailyGoal - todayWords} woorden te gaan!` :
+                             currentStreak > 0 ? `🔥 ${currentStreak} dagen streak! Keep going!` : '✨ Begin vandaag met schrijven!';
+                             
                 document.getElementById('motivationalMessage').textContent = message;
-
             } catch (error) {
-                console.error('Error loading stats:', error);
+                console.error('Stats error:', error);
             }
         }
 
-        // Load projects
         async function loadProjects() {
             try {
                 const { data, error } = await supabase
@@ -607,142 +537,75 @@
                 }
 
                 emptyState.classList.add('hidden');
-                grid.innerHTML = data.map(project => createProjectCard(project)).join('');
+                grid.innerHTML = data.map(project => {
+                    const draftWords = countWords(project.draft_text || '');
+                    const finalWords = countWords(project.final_text || '');
+                    const date = new Date(project.updated_at).toLocaleDateString('nl-NL');
 
-                // Add click handlers
-                document.querySelectorAll('.project-card').forEach(card => {
-                    const projectId = card.dataset.id;
-                    card.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('btn-delete')) {
-                            openProject(projectId);
-                        }
-                    });
-                });
-
-                // Add delete handlers
-                document.querySelectorAll('.btn-delete').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const projectId = e.target.dataset.id;
-                        if (confirm('Weet je zeker dat je dit boek wilt verwijderen?')) {
-                            await deleteProject(projectId);
-                        }
-                    });
-                });
-
-            } catch (error) {
-                console.error('Error loading projects:', error);
-            }
-        }
-
-        function createProjectCard(project) {
-            const draftWords = countWords(project.draft_text || '');
-            const finalWords = countWords(project.final_text || '');
-            const date = new Date(project.updated_at).toLocaleDateString('nl-NL');
-
-            return `
-                <div class="project-card" data-id="${project.id}">
-                    <div class="project-header">
-                        <div>
+                    return `
+                        <div class="project-card" data-id="${project.id}">
                             <div class="project-title">${project.title || 'Naamloos Boek'}</div>
                             <div class="project-date">Laatst bewerkt: ${date}</div>
+                            <div class="project-stats">
+                                <div>
+                                    <div class="project-stat-label">Draft</div>
+                                    <div class="project-stat-value">${draftWords} woorden</div>
+                                </div>
+                                <div>
+                                    <div class="project-stat-label">Finaal</div>
+                                    <div class="project-stat-value">${finalWords} woorden</div>
+                                </div>
+                            </div>
+                            <button class="btn-delete" data-id="${project.id}" onclick="event.stopPropagation()">Verwijderen</button>
                         </div>
-                    </div>
-                    <div class="project-stats">
-                        <div class="stat">
-                            <div class="stat-label">Draft</div>
-                            <div class="stat-value">${draftWords} woorden</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-label">Finaal</div>
-                            <div class="stat-value">${finalWords} woorden</div>
-                        </div>
-                    </div>
-                    <div class="project-actions">
-                        <button class="btn-delete" data-id="${project.id}">Verwijderen</button>
-                    </div>
-                </div>
-            `;
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.project-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        window.location.href = `co-writer-app.html?project=${card.dataset.id}`;
+                    });
+                });
+
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        if (confirm('Weet je zeker dat je dit boek wilt verwijderen?')) {
+                            await supabase.from('stories').delete().eq('id', btn.dataset.id);
+                            loadProjects();
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Load error:', error);
+            }
         }
 
         function countWords(text) {
             return text.trim() ? text.trim().split(/\s+/).length : 0;
         }
 
-        function openProject(projectId) {
-            window.location.href = `co-writer-app.html?project=${projectId}`;
-        }
-
-        async function deleteProject(projectId) {
-            try {
-                const { error } = await supabase
-                    .from('stories')
-                    .delete()
-                    .eq('id', projectId);
-
-                if (error) throw error;
-
-                loadProjects();
-            } catch (error) {
-                console.error('Error deleting project:', error);
-                alert('Fout bij verwijderen');
-            }
-        }
-
-        // New project modal
         const modal = document.getElementById('newProjectModal');
-        const newProjectBtn = document.getElementById('newProjectBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const newProjectForm = document.getElementById('newProjectForm');
-
-        newProjectBtn.addEventListener('click', () => {
+        document.getElementById('newProjectBtn').addEventListener('click', () => {
             modal.classList.add('show');
-            document.getElementById('projectTitle').focus();
         });
 
-        cancelBtn.addEventListener('click', () => {
+        document.getElementById('cancelBtn').addEventListener('click', () => {
             modal.classList.remove('show');
-            newProjectForm.reset();
         });
 
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-                newProjectForm.reset();
-            }
-        });
-
-        newProjectForm.addEventListener('submit', async (e) => {
+        document.getElementById('newProjectForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const title = document.getElementById('projectTitle').value;
 
-            try {
-                const { data, error } = await supabase
-                    .from('stories')
-                    .insert([{
-                        user_id: currentUser.id,
-                        title: title,
-                        draft_text: '',
-                        final_text: '',
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }])
-                    .select()
-                    .single();
+            const { data } = await supabase.from('stories').insert([{
+                user_id: currentUser.id,
+                title: title,
+                draft_text: '',
+                final_text: ''
+            }]).select().single();
 
-                if (error) throw error;
-
-                modal.classList.remove('show');
-                newProjectForm.reset();
-                
-                // Open the new project
-                openProject(data.id);
-
-            } catch (error) {
-                console.error('Error creating project:', error);
-                alert('Fout bij aanmaken project');
-            }
+            modal.classList.remove('show');
+            window.location.href = `co-writer-app.html?project=${data.id}`;
         });
     </script>
 </body>
