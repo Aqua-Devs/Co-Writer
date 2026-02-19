@@ -485,6 +485,33 @@
             background: var(--accent-bg);
             color: var(--accent-soft);
         }
+
+        .ai-action-btn {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+
+        .ai-action-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .ai-action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
     </style>
 </head>
 <body>
@@ -533,6 +560,12 @@
                     <div class="panel-header">
                         <div class="panel-title">AI Feedback</div>
                     </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                        <button class="ai-action-btn" id="continueWritingBtn">✨ Schrijf Verder</button>
+                        <button class="ai-action-btn" id="rewriteBtn">🔄 Herschrijf</button>
+                        <button class="ai-action-btn" id="readerViewBtn">👁️ Lezer Perspectief</button>
+                        <button class="ai-action-btn" id="editorViewBtn">✏️ Eindredacteur</button>
+                    </div>
                     <div class="feedback-content empty" id="feedbackContent">
                         Type wat tekst en klik op "Analyseer" voor AI-feedback
                     </div>
@@ -544,18 +577,18 @@
                 <div class="panel">
                     <div class="panel-header">
                         <div class="panel-title">Finaal Verhaal</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button id="openBtn">📂 Open</button>
-                            <button class="btn-small-primary" id="saveBtn">💾 Save</button>
-                            <div class="export-dropdown">
-                                <button class="btn-small-primary" id="exportBtn">📤 Export</button>
-                                <div class="export-menu" id="exportMenu">
-                                    <button class="export-option" data-format="txt">Als TXT</button>
-                                    <button class="export-option" data-format="docx">Als DOCX</button>
-                                    <button class="export-option" data-format="pdf">Als PDF</button>
-                                </div>
+                        <div class="word-count" id="finalCount">0 woorden</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                        <button id="openBtn">📂 Open</button>
+                        <button class="btn-small-primary" id="saveBtn">💾 Save</button>
+                        <div class="export-dropdown">
+                            <button class="btn-small-primary" id="exportBtn">📤 Export</button>
+                            <div class="export-menu" id="exportMenu">
+                                <button class="export-option" data-format="txt">Als TXT</button>
+                                <button class="export-option" data-format="docx">Als DOCX</button>
+                                <button class="export-option" data-format="pdf">Als PDF</button>
                             </div>
-                            <div class="word-count" id="finalCount">0 woorden</div>
                         </div>
                     </div>
                     <textarea 
@@ -1066,6 +1099,144 @@
             });
             
             feedbackContent.innerHTML = html || '<p>Geen feedback beschikbaar</p>';
+        }
+
+        // AI Action Buttons
+        const continueWritingBtn = document.getElementById('continueWritingBtn');
+        const rewriteBtn = document.getElementById('rewriteBtn');
+        const readerViewBtn = document.getElementById('readerViewBtn');
+        const editorViewBtn = document.getElementById('editorViewBtn');
+
+        // Continue Writing
+        continueWritingBtn.addEventListener('click', async () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                showNotification('Schrijf eerst wat tekst in Draft');
+                return;
+            }
+
+            await callAIFunction('continue', text, '✨ Schrijft verder...');
+        });
+
+        // Rewrite
+        rewriteBtn.addEventListener('click', async () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                showNotification('Schrijf eerst wat tekst in Draft');
+                return;
+            }
+
+            await callAIFunction('rewrite', text, '🔄 Herschrijft...');
+        });
+
+        // Reader View
+        readerViewBtn.addEventListener('click', async () => {
+            const text = finalText.value.trim();
+            
+            if (!text) {
+                showNotification('Geen tekst in Finaal Verhaal');
+                return;
+            }
+
+            await callAIFunction('reader', text, '👁️ Analyseert als lezer...');
+        });
+
+        // Editor View
+        editorViewBtn.addEventListener('click', async () => {
+            const text = finalText.value.trim();
+            
+            if (!text) {
+                showNotification('Geen tekst in Finaal Verhaal');
+                return;
+            }
+
+            await callAIFunction('editor', text, '✏️ Eindredacteur bekijkt...');
+        });
+
+        async function callAIFunction(type, text, loadingMessage) {
+            // Disable all AI buttons
+            continueWritingBtn.disabled = true;
+            rewriteBtn.disabled = true;
+            readerViewBtn.disabled = true;
+            editorViewBtn.disabled = true;
+
+            feedbackContent.classList.add('loading');
+            feedbackContent.classList.remove('empty');
+            feedbackContent.innerHTML = `
+                <div>
+                    <div class="loading-dots"><span></span><span></span><span></span></div>
+                    ${loadingMessage}
+                </div>
+            `;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+                let prompt = '';
+                
+                switch(type) {
+                    case 'continue':
+                        prompt = `Je bent een creatieve schrijfassistent. Lees de volgende tekst en schrijf daarop verder (200-300 woorden). Behoud de stijl en toon:\n\n${text}`;
+                        break;
+                    case 'rewrite':
+                        prompt = `Je bent een professionele editor. Herschrijf de volgende tekst om het beter, pakkender en vloeiender te maken. Behoud de kernboodschap:\n\n${text}`;
+                        break;
+                    case 'reader':
+                        prompt = `Je bent een normale lezer die dit boekfragment leest. Geef je eerlijke mening: wat vind je ervan? Wat werkt goed? Wat niet? Zou je verder willen lezen?\n\n${text}`;
+                        break;
+                    case 'editor':
+                        prompt = `Je bent een strenge eindredacteur van een uitgeverij. Analyseer dit manuscript fragment grondig. Geef professionele feedback over: structuur, stijl, tempo, dialogen, beschrijvingen, plotontwikkeling. Wees eerlijk en direct:\n\n${text}`;
+                        break;
+                }
+
+                const response = await fetch(`${API_URL}/api/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: prompt }),
+                    signal: controller.signal,
+                    mode: 'cors'
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.feedback) {
+                    displayFeedback(data.feedback);
+                } else {
+                    throw new Error('Geen feedback ontvangen');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                let errorMessage = 'Er ging iets mis. ';
+                if (error.name === 'AbortError') {
+                    errorMessage += 'Timeout - probeer opnieuw.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage += `Backend wekt op, probeer opnieuw...`;
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                feedbackContent.innerHTML = `<p>${errorMessage}</p>`;
+            } finally {
+                feedbackContent.classList.remove('loading');
+                
+                // Re-enable all AI buttons
+                continueWritingBtn.disabled = false;
+                rewriteBtn.disabled = false;
+                readerViewBtn.disabled = false;
+                editorViewBtn.disabled = false;
+            }
         }
 
         // Move to final
