@@ -1229,28 +1229,9 @@
             autoSave();
         });
 
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement === draftText) {
-                e.preventDefault();
-                getFeedbackBtn.click();
-            }
-            
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
-                e.preventDefault();
-                moveToFinalBtn.click();
-            }
+        // Keyboard shortcuts removed - use header buttons
 
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                saveBtn.click();
-            }
-
-            if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
-                e.preventDefault();
-                openBtn.click();
-            }
-        });
-
+        // Versions modal
         const versionsModal = document.getElementById('versionsModal');
         const closeVersions = document.getElementById('closeVersions');
 
