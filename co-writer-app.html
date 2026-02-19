@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co-Writer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --text: #e8e6e3;
+            --text-dim: #a8a5a1;
+            --accent: #ff6b35;
+            --accent-soft: #ff9b7a;
+            --accent-bg: rgba(255, 107, 53, 0.1);
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 155, 122, 0.06) 0%, transparent 50%);
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--accent) 30%, 
+                var(--accent-soft) 70%, 
+                transparent
+            );
+            opacity: 0.6;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--text);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent-soft) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-email {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            color: var(--accent);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.saving {
+            background: #ffd43b;
+            box-shadow: 0 0 10px #ffd43b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.95); }
+        }
+
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            overflow: hidden;
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+            max-height: 100%;
+        }
+
+        .panel {
+            background: var(--surface);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            max-height: 100%;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            flex: 1;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .panel:hover {
+            background: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .panel:focus-within::before {
+            opacity: 0.8;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--text);
+            font-style: italic;
+        }
+
+        .word-count {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            padding: 0.35rem 0.75rem;
+            background: rgba(255, 107, 53, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--text);
+            resize: none;
+            outline: none;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        textarea::placeholder {
+            color: var(--text-dim);
+            opacity: 0.4;
+        }
+
+        textarea::selection {
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+        }
+
+        .feedback-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text);
+            min-height: 0;
+            padding-right: 0.5rem;
+        }
+
+        .feedback-content::-webkit-scrollbar,
+        textarea::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .feedback-content::-webkit-scrollbar-track,
+        textarea::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .feedback-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, 0.3);
+            border-radius: 3px;
+        }
+
+        .feedback-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 53, 0.5);
+        }
+
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .feedback-content.loading,
+        .feedback-content.empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-style: italic;
+            opacity: 0.5;
+            text-align: center;
+        }
+
+        .feedback-content p {
+            margin-bottom: 1rem;
+        }
+
+        .feedback-content strong {
+            color: var(--accent-soft);
+            font-weight: 600;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent);
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled:hover {
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+            box-shadow: none;
+        }
+
+        .btn-small-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+            color: var(--bg);
+            border: none;
+            font-weight: 600;
+        }
+
+        .btn-small-primary:hover {
+            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
+        }
+
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-right: 0.5rem;
+        }
+
+        .loading-dots span {
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.24s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.12s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .column:nth-child(1) .panel { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
+        .column:nth-child(2) .panel { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
+        .column:nth-child(3) .panel { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .column:nth-child(2) {
+                grid-row: 2;
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>Co-Writer</h1>
+                    <div class="subtitle">AI-Powered Writing Assistant</div>
+                </div>
+                <div class="user-info">
+                    <div class="status-indicator">
+                        <div class="status-dot" id="statusDot"></div>
+                        <span id="statusText">Opgeslagen</span>
+                    </div>
+                    <div class="user-email" id="userEmail"></div>
+                    <button class="btn-logout" id="logoutBtn">Uitloggen</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Kolom 1: Draft -->
+            <div class="column">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Draft</div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button id="getFeedbackBtn">Analyseer</button>
+                            <button id="moveToFinalBtn">Voeg Toe</button>
+                            <div class="word-count" id="draftCount">0 woorden</div>
+                        </div>
+                    </div>
+                    <textarea 
+                        id="draftText" 
+                        placeholder="Begin hier te typen..."
+                        spellcheck="true"
+                    ></textarea>
+                </div>
+            </div>
+
+            <!-- Kolom 2: AI Feedback -->
+            <div class="column">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">AI Feedback</div>
+                    </div>
+                    <div class="feedback-content empty" id="feedbackContent">
+                        Type wat tekst en klik op "Analyseer" voor AI-feedback
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom 3: Final -->
+            <div class="column">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Finaal Verhaal</div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button id="openBtn">📂 Open</button>
+                            <button class="btn-small-primary" id="saveBtn">💾 Save</button>
+                            <div class="word-count" id="finalCount">0 woorden</div>
+                        </div>
+                    </div>
+                    <textarea 
+                        id="finalText" 
+                        placeholder="Je definitieve verhaal verzamelt zich hier..."
+                        spellcheck="true"
+                    ></textarea>
+                    <input type="file" id="fileInput" accept=".txt" style="display: none;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Opgeslagen! 📄</div>
+
+    <script>
+        // CONFIGURATIE
+        const API_URL = 'https://co-writer.onrender.com';
+        const SUPABASE_URL = 'https://sdfynuvanetpmritvaze.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZnludXZhbmV0cG1yaXR2YXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDYxODMsImV4cCI6MjA4NzA4MjE4M30.T5LBYzSUHlY8jB1ty-6WLtO4Zh8xVRyQpFhGQETYnKs';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Check authentication
+        let currentUser = null;
+        let storyId = null;
+
+        checkAuth();
+
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            currentUser = session.user;
+            document.getElementById('userEmail').textContent = currentUser.email;
+            
+            // Load story
+            await loadStory();
+        }
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'index.html';
+        });
+
+        // Elements
+        const draftText = document.getElementById('draftText');
+        const finalText = document.getElementById('finalText');
+        const feedbackContent = document.getElementById('feedbackContent');
+        const getFeedbackBtn = document.getElementById('getFeedbackBtn');
+        const moveToFinalBtn = document.getElementById('moveToFinalBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const openBtn = document.getElementById('openBtn');
+        const fileInput = document.getElementById('fileInput');
+        const notification = document.getElementById('notification');
+        const draftCount = document.getElementById('draftCount');
+        const finalCount = document.getElementById('finalCount');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        function countWords(text) {
+            return text.trim() ? text.trim().split(/\s+/).length : 0;
+        }
+
+        function updateCount(textarea, countEl) {
+            const words = countWords(textarea.value);
+            countEl.textContent = `${words} woorden`;
+        }
+
+        draftText.addEventListener('input', () => {
+            updateCount(draftText, draftCount);
+            autoSave();
+        });
+        
+        finalText.addEventListener('input', () => {
+            updateCount(finalText, finalCount);
+            autoSave();
+        });
+
+        // Auto-save naar Supabase
+        let saveTimeout;
+        async function autoSave() {
+            clearTimeout(saveTimeout);
+            statusDot.classList.add('saving');
+            statusText.textContent = 'Aan het opslaan...';
+            
+            saveTimeout = setTimeout(async () => {
+                await saveToSupabase();
+                statusDot.classList.remove('saving');
+                statusText.textContent = 'Opgeslagen';
+            }, 2000);
+        }
+
+        // Load story from Supabase
+        async function loadStory() {
+            try {
+                const { data, error } = await supabase
+                    .from('stories')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('updated_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Error loading story:', error);
+                    return;
+                }
+
+                if (data) {
+                    storyId = data.id;
+                    draftText.value = data.draft_text || '';
+                    finalText.value = data.final_text || '';
+                    updateCount(draftText, draftCount);
+                    updateCount(finalText, finalCount);
+                }
+            } catch (error) {
+                console.error('Load error:', error);
+            }
+        }
+
+        // Save to Supabase
+        async function saveToSupabase() {
+            try {
+                const storyData = {
+                    user_id: currentUser.id,
+                    draft_text: draftText.value,
+                    final_text: finalText.value,
+                    updated_at: new Date().toISOString()
+                };
+
+                if (storyId) {
+                    // Update existing
+                    const { error } = await supabase
+                        .from('stories')
+                        .update(storyData)
+                        .eq('id', storyId);
+
+                    if (error) throw error;
+                } else {
+                    // Create new
+                    const { data, error } = await supabase
+                        .from('stories')
+                        .insert([storyData])
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    storyId = data.id;
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                showNotification('Fout bij opslaan');
+            }
+        }
+
+        // Open bestand (lokaal)
+        openBtn.addEventListener('click', async () => {
+            try {
+                if ('showOpenFilePicker' in window) {
+                    const [fileHandle] = await window.showOpenFilePicker({
+                        types: [{
+                            description: 'Text bestanden',
+                            accept: { 'text/plain': ['.txt'] }
+                        }],
+                        multiple: false
+                    });
+                    
+                    const file = await fileHandle.getFile();
+                    const text = await file.text();
+                    finalText.value = text;
+                    updateCount(finalText, finalCount);
+                    showNotification(`${file.name} geladen`);
+                    autoSave();
+                } else {
+                    fileInput.click();
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Open error:', error);
+                    showNotification('Fout bij openen');
+                }
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                finalText.value = event.target.result;
+                updateCount(finalText, finalCount);
+                showNotification(`${file.name} geladen`);
+                autoSave();
+            };
+            reader.onerror = () => {
+                showNotification('Fout bij openen bestand');
+            };
+            reader.readAsText(file);
+            
+            fileInput.value = '';
+        });
+
+        // Save lokaal
+        saveBtn.addEventListener('click', async () => {
+            const text = finalText.value;
+            
+            if (!text.trim()) {
+                showNotification('Geen tekst om op te slaan');
+                return;
+            }
+
+            try {
+                if ('showSaveFilePicker' in window) {
+                    const now = new Date();
+                    const suggestedName = `verhaal-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.txt`;
+                    
+                    const options = {
+                        suggestedName: suggestedName,
+                        types: [{
+                            description: 'Text bestanden',
+                            accept: { 'text/plain': ['.txt'] }
+                        }]
+                    };
+                    
+                    const handle = await window.showSaveFilePicker(options);
+                    const writable = await handle.createWritable();
+                    await writable.write(text);
+                    await writable.close();
+                    
+                    showNotification(`Opgeslagen naar ${handle.name}`);
+                } else {
+                    const now = new Date();
+                    const filename = `verhaal-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.txt`;
+                    
+                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = filename;
+                    link.click();
+                    URL.revokeObjectURL(url);
+                    
+                    showNotification(`Gedownload als ${filename}`);
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Save error:', error);
+                    showNotification('Fout bij opslaan');
+                }
+            }
+        });
+
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // AI Feedback
+        getFeedbackBtn.addEventListener('click', async () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                feedbackContent.innerHTML = '<p>Schrijf eerst wat tekst</p>';
+                feedbackContent.classList.remove('empty', 'loading');
+                return;
+            }
+
+            getFeedbackBtn.disabled = true;
+            feedbackContent.classList.add('loading');
+            feedbackContent.classList.remove('empty');
+            feedbackContent.innerHTML = `
+                <div>
+                    <div class="loading-dots"><span></span><span></span><span></span></div>
+                    Aan het analyseren...
+                </div>
+            `;
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+                const response = await fetch(`${API_URL}/api/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text }),
+                    signal: controller.signal,
+                    mode: 'cors'
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.feedback) {
+                    displayFeedback(data.feedback);
+                } else {
+                    throw new Error('Geen feedback ontvangen');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                let errorMessage = 'Er ging iets mis. ';
+                if (error.name === 'AbortError') {
+                    errorMessage += 'Timeout - probeer opnieuw.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage += `Backend wekt op (30 sec), probeer opnieuw...`;
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                feedbackContent.innerHTML = `<p>${errorMessage}</p>`;
+            } finally {
+                feedbackContent.classList.remove('loading');
+                getFeedbackBtn.disabled = false;
+            }
+        });
+
+        function displayFeedback(feedback) {
+            const cleaned = feedback
+                .replace(/\*\*/g, '')
+                .replace(/\*/g, '')
+                .replace(/###/g, '')
+                .replace(/##/g, '')
+                .replace(/#/g, '')
+                .replace(/^[\d\-\•\.]+\s*/gm, '');
+            
+            const lines = cleaned.split('\n').filter(line => line.trim());
+            let html = '';
+            
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed) {
+                    if (trimmed.length < 50 && !trimmed.endsWith('.')) {
+                        html += `<p><strong>${trimmed}</strong></p>`;
+                    } else {
+                        html += `<p>${trimmed}</p>`;
+                    }
+                }
+            });
+            
+            feedbackContent.innerHTML = html || '<p>Geen feedback beschikbaar</p>';
+        }
+
+        // Move to final
+        moveToFinalBtn.addEventListener('click', () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                showNotification('Geen tekst om toe te voegen');
+                return;
+            }
+
+            if (finalText.value.trim()) {
+                finalText.value += '\n\n' + text;
+            } else {
+                finalText.value = text;
+            }
+
+            draftText.value = '';
+            updateCount(draftText, draftCount);
+            updateCount(finalText, finalCount);
+
+            feedbackContent.innerHTML = 'Klaar voor het volgende stuk';
+            feedbackContent.classList.add('empty');
+
+            showNotification('Toegevoegd aan finaal verhaal');
+            autoSave();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement === draftText) {
+                e.preventDefault();
+                getFeedbackBtn.click();
+            }
+            
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Enter') {
+                e.preventDefault();
+                moveToFinalBtn.click();
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveBtn.click();
+            }
+
+            if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+                e.preventDefault();
+                openBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
