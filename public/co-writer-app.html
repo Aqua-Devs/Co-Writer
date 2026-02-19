@@ -22,7 +22,6 @@
             --accent-soft: #ff9b7a;
             --accent-bg: rgba(255, 107, 53, 0.1);
             --border: rgba(255, 255, 255, 0.08);
-            --shadow: rgba(0, 0, 0, 0.3);
         }
 
         body {
@@ -47,18 +46,6 @@
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--border);
-            position: relative;
-        }
-
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-soft) 70%, transparent);
-            opacity: 0.6;
         }
 
         .header-content {
@@ -78,18 +65,14 @@
             font-family: 'DM Serif Display', serif;
             font-size: 1.5rem;
             font-weight: 400;
-            color: var(--text);
-            letter-spacing: -0.02em;
             background: linear-gradient(135deg, var(--text) 0%, var(--accent-soft) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
             white-space: nowrap;
         }
 
         .header-menu {
             display: flex;
-            align-items: center;
             gap: 0.75rem;
         }
 
@@ -103,52 +86,45 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.7rem;
             color: var(--text-dim);
-            white-space: nowrap;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent);
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 6px;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: var(--bg);
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-small-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+            color: var(--bg);
+            border: none;
+            font-weight: 600;
         }
 
         .btn-logout {
             padding: 0.5rem 1rem;
             background: rgba(255, 107, 53, 0.1);
             border: 1px solid var(--accent);
-            border-radius: 6px;
             color: var(--accent);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-logout:hover {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .status-dot.saving {
-            background: #ffd43b;
-            box-shadow: 0 0 10px #ffd43b;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.95); }
         }
 
         .main-content {
@@ -163,46 +139,18 @@
         .column {
             display: flex;
             flex-direction: column;
-            min-width: 0;
             min-height: 0;
-            max-height: 100%;
         }
 
         .panel {
             background: var(--surface);
-            backdrop-filter: blur(40px);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            min-height: 0;
-            max-height: 100%;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
             flex: 1;
-        }
-
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .panel:hover {
-            background: var(--surface-hover);
-            border-color: rgba(255, 255, 255, 0.12);
-        }
-
-        .panel:focus-within::before {
-            opacity: 0.8;
+            min-height: 0;
         }
 
         .panel-header {
@@ -217,8 +165,6 @@
         .panel-title {
             font-family: 'DM Serif Display', serif;
             font-size: 1.25rem;
-            font-weight: 400;
-            color: var(--text);
             font-style: italic;
         }
 
@@ -229,7 +175,6 @@
             padding: 0.35rem 0.75rem;
             background: rgba(255, 107, 53, 0.08);
             border-radius: 20px;
-            border: 1px solid rgba(255, 107, 53, 0.2);
         }
 
         textarea {
@@ -243,7 +188,6 @@
             color: var(--text);
             resize: none;
             outline: none;
-            min-height: 0;
             overflow-y: auto;
         }
 
@@ -252,43 +196,12 @@
             opacity: 0.4;
         }
 
-        textarea::selection {
-            background: var(--accent-bg);
-            color: var(--accent-soft);
-        }
-
         .feedback-content {
             flex: 1;
             overflow-y: auto;
             font-size: 0.95rem;
             line-height: 1.7;
             color: var(--text);
-            min-height: 0;
-            padding-right: 0.5rem;
-        }
-
-        .feedback-content::-webkit-scrollbar,
-        textarea::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .feedback-content::-webkit-scrollbar-track,
-        textarea::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .feedback-content::-webkit-scrollbar-thumb {
-            background: rgba(255, 107, 53, 0.3);
-            border-radius: 3px;
-        }
-
-        .feedback-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 107, 53, 0.5);
-        }
-
-        textarea::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
         }
 
         .feedback-content.loading,
@@ -299,62 +212,10 @@
             color: var(--text-dim);
             font-style: italic;
             opacity: 0.5;
-            text-align: center;
         }
 
         .feedback-content p {
             margin-bottom: 1rem;
-        }
-
-        .feedback-content strong {
-            color: var(--accent-soft);
-            font-weight: 600;
-        }
-
-        button {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--accent);
-            background: var(--accent-bg);
-            color: var(--accent-soft);
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 6px;
-            letter-spacing: 0.02em;
-            white-space: nowrap;
-        }
-
-        button:hover {
-            background: var(--accent);
-            color: var(--bg);
-            border-color: var(--accent);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-        }
-
-        button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        button:disabled:hover {
-            background: var(--accent-bg);
-            color: var(--accent-soft);
-            box-shadow: none;
-        }
-
-        .btn-small-primary {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
-            color: var(--bg);
-            border: none;
-            font-weight: 600;
-        }
-
-        .btn-small-primary:hover {
-            box-shadow: 0 6px 16px rgba(255, 107, 53, 0.4);
         }
 
         .loading-dots {
@@ -375,28 +236,9 @@
         .loading-dots span:nth-child(2) { animation-delay: -0.12s; }
 
         @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
-            40% { transform: scale(1); opacity: 1; }
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .panel {
-            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .column:nth-child(1) .panel { animation-delay: 0.1s; opacity: 0; animation-fill-mode: forwards; }
-        .column:nth-child(2) .panel { animation-delay: 0.2s; opacity: 0; animation-fill-mode: forwards; }
-        .column:nth-child(3) .panel { animation-delay: 0.3s; opacity: 0; animation-fill-mode: forwards; }
 
         .notification {
             position: fixed;
@@ -406,67 +248,17 @@
             background: var(--accent);
             color: var(--bg);
             border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             box-shadow: 0 10px 40px rgba(255, 107, 53, 0.4);
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s;
             z-index: 1000;
         }
 
         .notification.show {
             transform: translateY(0);
             opacity: 1;
-        }
-
-        .export-dropdown {
-            position: relative;
-        }
-
-        .export-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 0.5rem;
-            background: var(--surface);
-            backdrop-filter: blur(40px);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            z-index: 100;
-            min-width: 150px;
-        }
-
-        .export-menu.show {
-            display: block;
-        }
-
-        .export-option {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: transparent;
-            border: none;
-            color: var(--text);
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.85rem;
-            border-radius: 0;
-        }
-
-        .export-option:first-child {
-            border-radius: 8px 8px 0 0;
-        }
-
-        .export-option:last-child {
-            border-radius: 0 0 8px 8px;
-        }
-
-        .export-option:hover {
-            background: var(--accent-bg);
-            color: var(--accent-soft);
         }
 
         .versions-modal {
@@ -488,7 +280,6 @@
 
         .versions-content {
             background: var(--surface);
-            backdrop-filter: blur(40px);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 2rem;
@@ -510,15 +301,6 @@
         .versions-title {
             font-family: 'DM Serif Display', serif;
             font-size: 1.5rem;
-        }
-
-        .btn-close {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text);
-            cursor: pointer;
         }
 
         .version-item {
@@ -550,15 +332,6 @@
             color: var(--text-dim);
             margin-bottom: 0.75rem;
         }
-
-        .btn-restore {
-            padding: 0.5rem 1rem;
-            background: var(--accent);
-            border: none;
-            border-radius: 6px;
-            color: var(--bg);
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -568,11 +341,11 @@
                 <div class="header-left">
                     <h1>Co-Writer</h1>
                     <div class="header-menu">
-                        <button id="getFeedbackBtnHeader">Analyseer</button>
-                        <button id="moveToFinalBtnHeader">Voeg Toe</button>
-                        <button id="openBtnHeader">📂 Open</button>
-                        <button class="btn-small-primary" id="exportBtnHeader">📤 Export</button>
-                        <button id="versionsBtnHeader">🕐 Versies</button>
+                        <button id="analyseBtn">Analyseer</button>
+                        <button id="addToFinalBtn">Voeg Toe</button>
+                        <button id="openFileBtn">📂 Open</button>
+                        <button class="btn-small-primary" id="exportDocBtn">📤 Export</button>
+                        <button id="showVersionsBtn">🕐 Versies</button>
                     </div>
                 </div>
                 <div class="header-right">
@@ -590,11 +363,7 @@
                         <div class="panel-title">Draft</div>
                         <div class="word-count" id="draftCount">0 woorden</div>
                     </div>
-                    <textarea 
-                        id="draftText" 
-                        placeholder="Begin hier te typen..."
-                        spellcheck="true"
-                    ></textarea>
+                    <textarea id="draftText" placeholder="Begin hier te typen..." spellcheck="true"></textarea>
                 </div>
             </div>
 
@@ -604,7 +373,7 @@
                         <div class="panel-title">AI Feedback</div>
                     </div>
                     <div class="feedback-content empty" id="feedbackContent">
-                        Type wat tekst en klik op "Analyseer" voor AI-feedback
+                        Type wat tekst en klik op "Analyseer"
                     </div>
                 </div>
             </div>
@@ -615,24 +384,20 @@
                         <div class="panel-title">Finaal Verhaal</div>
                         <div class="word-count" id="finalCount">0 woorden</div>
                     </div>
-                    <textarea 
-                        id="finalText" 
-                        placeholder="Je definitieve verhaal verzamelt zich hier..."
-                        spellcheck="true"
-                    ></textarea>
+                    <textarea id="finalText" placeholder="Je definitieve verhaal..." spellcheck="true"></textarea>
                     <input type="file" id="fileInput" accept=".txt" style="display: none;">
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="notification" id="notification">Opgeslagen! 📄</div>
+    <div class="notification" id="notification"></div>
 
     <div class="versions-modal" id="versionsModal">
         <div class="versions-content">
             <div class="versions-header">
                 <h3 class="versions-title">Versie Geschiedenis</h3>
-                <button class="btn-close" id="closeVersions">Sluiten</button>
+                <button id="closeVersionsBtn">Sluiten</button>
             </div>
             <div id="versionsList">Laden...</div>
         </div>
@@ -649,6 +414,7 @@
 
         let currentUser = null;
         let storyId = null;
+        let lastWordCount = 0;
 
         checkAuth();
 
@@ -661,7 +427,6 @@
             
             currentUser = session.user;
             document.getElementById('userEmail').textContent = currentUser.email;
-            
             await loadStory();
         }
 
@@ -673,15 +438,10 @@
         const draftText = document.getElementById('draftText');
         const finalText = document.getElementById('finalText');
         const feedbackContent = document.getElementById('feedbackContent');
-        const getFeedbackBtn = document.getElementById('getFeedbackBtnHeader');
-        const moveToFinalBtn = document.getElementById('moveToFinalBtnHeader');
-        const openBtn = document.getElementById('openBtnHeader');
-        const exportBtn = document.getElementById('exportBtnHeader');
-        const fileInput = document.getElementById('fileInput');
-        const notification = document.getElementById('notification');
         const draftCount = document.getElementById('draftCount');
         const finalCount = document.getElementById('finalCount');
-        const versionsBtn = document.getElementById('versionsBtnHeader');
+        const notification = document.getElementById('notification');
+        const fileInput = document.getElementById('fileInput');
 
         function countWords(text) {
             return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -703,9 +463,8 @@
         });
 
         let saveTimeout;
-        async function autoSave() {
+        function autoSave() {
             clearTimeout(saveTimeout);
-            
             saveTimeout = setTimeout(async () => {
                 await saveToSupabase();
             }, 2000);
@@ -729,60 +488,36 @@
                     .single();
 
                 if (error) {
-                    console.error('Error loading story:', error);
                     alert('Project niet gevonden');
                     window.location.href = 'dashboard.html';
                     return;
                 }
 
-                if (data) {
-                    storyId = data.id;
-                    draftText.value = data.draft_text || '';
-                    finalText.value = data.final_text || '';
-                    updateCount(draftText, draftCount);
-                    updateCount(finalText, finalCount);
-                    
-                    lastWordCount = countWords(draftText.value) + countWords(finalText.value);
-                }
+                storyId = data.id;
+                draftText.value = data.draft_text || '';
+                finalText.value = data.final_text || '';
+                updateCount(draftText, draftCount);
+                updateCount(finalText, finalCount);
+                lastWordCount = countWords(draftText.value) + countWords(finalText.value);
             } catch (error) {
                 console.error('Load error:', error);
             }
         }
 
-        let lastWordCount = 0;
-        
         async function saveToSupabase() {
             try {
-                const storyData = {
-                    user_id: currentUser.id,
-                    draft_text: draftText.value,
-                    final_text: finalText.value,
-                    updated_at: new Date().toISOString()
-                };
-
-                if (storyId) {
-                    const { error } = await supabase
-                        .from('stories')
-                        .update(storyData)
-                        .eq('id', storyId);
-
-                    if (error) throw error;
-                } else {
-                    const { data, error } = await supabase
-                        .from('stories')
-                        .insert([storyData])
-                        .select()
-                        .single();
-
-                    if (error) throw error;
-                    storyId = data.id;
-                }
+                await supabase
+                    .from('stories')
+                    .update({
+                        draft_text: draftText.value,
+                        final_text: finalText.value,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', storyId);
 
                 await updateWritingStats();
-                
             } catch (error) {
                 console.error('Save error:', error);
-                showNotification('Fout bij opslaan');
             }
         }
 
@@ -819,80 +554,134 @@
                         }]);
                 }
 
-                await updateStreakAndTotal(wordsAdded, today);
-
-            } catch (error) {
-                console.error('Stats update error:', error);
-            }
-        }
-
-        async function updateStreakAndTotal(wordsAdded, today) {
-            try {
                 const { data: settings } = await supabase
                     .from('user_settings')
                     .select('*')
                     .eq('user_id', currentUser.id)
                     .single();
 
-                if (!settings) return;
+                if (settings) {
+                    let newStreak = settings.current_streak;
+                    const lastWrite = settings.last_write_date;
 
-                let newStreak = settings.current_streak;
-                const lastWrite = settings.last_write_date;
+                    if (lastWrite !== today) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-                if (lastWrite !== today) {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-                    if (lastWrite === yesterdayStr) {
-                        newStreak += 1;
-                    } else if (!lastWrite || lastWrite < yesterdayStr) {
-                        newStreak = 1;
+                        if (lastWrite === yesterdayStr) {
+                            newStreak += 1;
+                        } else if (!lastWrite || lastWrite < yesterdayStr) {
+                            newStreak = 1;
+                        }
                     }
+
+                    await supabase
+                        .from('user_settings')
+                        .update({
+                            current_streak: newStreak,
+                            longest_streak: Math.max(newStreak, settings.longest_streak),
+                            total_words_written: settings.total_words_written + wordsAdded,
+                            last_write_date: today
+                        })
+                        .eq('user_id', currentUser.id);
                 }
-
-                await supabase
-                    .from('user_settings')
-                    .update({
-                        current_streak: newStreak,
-                        longest_streak: Math.max(newStreak, settings.longest_streak),
-                        total_words_written: settings.total_words_written + wordsAdded,
-                        last_write_date: today,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('user_id', currentUser.id);
-
             } catch (error) {
-                console.error('Streak update error:', error);
+                console.error('Stats error:', error);
             }
         }
 
-        openBtn.addEventListener('click', async () => {
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('analyseBtn').addEventListener('click', async () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                feedbackContent.innerHTML = '<p>Schrijf eerst wat tekst</p>';
+                feedbackContent.classList.remove('empty', 'loading');
+                return;
+            }
+
+            const analyseBtn = document.getElementById('analyseBtn');
+            analyseBtn.disabled = true;
+            feedbackContent.classList.add('loading');
+            feedbackContent.classList.remove('empty');
+            feedbackContent.innerHTML = '<div><div class="loading-dots"><span></span><span></span><span></span></div>Aan het analyseren...</div>';
+
             try {
-                if ('showOpenFilePicker' in window) {
-                    const [fileHandle] = await window.showOpenFilePicker({
-                        types: [{
-                            description: 'Text bestanden',
-                            accept: { 'text/plain': ['.txt'] }
-                        }],
-                        multiple: false
+                const response = await fetch(`${API_URL}/api/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text }),
+                    signal: AbortSignal.timeout(60000)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                const data = await response.json();
+                
+                if (data.success && data.feedback) {
+                    const cleaned = data.feedback
+                        .replace(/\*\*/g, '')
+                        .replace(/\*/g, '')
+                        .replace(/###/g, '')
+                        .replace(/##/g, '')
+                        .replace(/#/g, '')
+                        .replace(/^[\d\-\•\.]+\s*/gm, '');
+                    
+                    const lines = cleaned.split('\n').filter(line => line.trim());
+                    let html = '';
+                    
+                    lines.forEach(line => {
+                        const trimmed = line.trim();
+                        if (trimmed) {
+                            html += `<p>${trimmed}</p>`;
+                        }
                     });
                     
-                    const file = await fileHandle.getFile();
-                    const text = await file.text();
-                    finalText.value = text;
-                    updateCount(finalText, finalCount);
-                    showNotification(`${file.name} geladen`);
-                    autoSave();
+                    feedbackContent.innerHTML = html || '<p>Geen feedback beschikbaar</p>';
                 } else {
-                    fileInput.click();
+                    throw new Error('Geen feedback');
                 }
             } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Open error:', error);
-                    showNotification('Fout bij openen');
-                }
+                feedbackContent.innerHTML = `<p>Fout: ${error.message}</p>`;
+            } finally {
+                feedbackContent.classList.remove('loading');
+                analyseBtn.disabled = false;
             }
+        });
+
+        document.getElementById('addToFinalBtn').addEventListener('click', () => {
+            const text = draftText.value.trim();
+            
+            if (!text) {
+                showNotification('Geen tekst om toe te voegen');
+                return;
+            }
+
+            if (finalText.value.trim()) {
+                finalText.value += '\n\n' + text;
+            } else {
+                finalText.value = text;
+            }
+
+            draftText.value = '';
+            updateCount(draftText, draftCount);
+            updateCount(finalText, finalCount);
+            feedbackContent.innerHTML = 'Klaar voor het volgende stuk';
+            feedbackContent.classList.add('empty');
+            showNotification('Toegevoegd!');
+            autoSave();
+        });
+
+        document.getElementById('openFileBtn').addEventListener('click', () => {
+            fileInput.click();
         });
 
         fileInput.addEventListener('change', (e) => {
@@ -906,72 +695,11 @@
                 showNotification(`${file.name} geladen`);
                 autoSave();
             };
-            reader.onerror = () => {
-                showNotification('Fout bij openen bestand');
-            };
             reader.readAsText(file);
-            
             fileInput.value = '';
         });
 
-        saveBtn.addEventListener('click', async () => {
-            const text = finalText.value;
-            
-            if (!text.trim()) {
-                showNotification('Geen tekst om op te slaan');
-                return;
-            }
-
-            try {
-                if ('showSaveFilePicker' in window) {
-                    const now = new Date();
-                    const suggestedName = `verhaal-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.txt`;
-                    
-                    const options = {
-                        suggestedName: suggestedName,
-                        types: [{
-                            description: 'Text bestanden',
-                            accept: { 'text/plain': ['.txt'] }
-                        }]
-                    };
-                    
-                    const handle = await window.showSaveFilePicker(options);
-                    const writable = await handle.createWritable();
-                    await writable.write(text);
-                    await writable.close();
-                    
-                    showNotification(`Opgeslagen naar ${handle.name}`);
-                } else {
-                    const now = new Date();
-                    const filename = `verhaal-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.txt`;
-                    
-                    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = filename;
-                    link.click();
-                    URL.revokeObjectURL(url);
-                    
-                    showNotification(`Gedownload als ${filename}`);
-                }
-            } catch (error) {
-                if (error.name !== 'AbortError') {
-                    console.error('Save error:', error);
-                    showNotification('Fout bij opslaan');
-                }
-            }
-        });
-
-        function showNotification(message) {
-            notification.textContent = message;
-            notification.classList.add('show');
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
-
-        exportBtn.addEventListener('click', async () => {
+        document.getElementById('exportDocBtn').addEventListener('click', async () => {
             const text = finalText.value;
             
             if (!text.trim()) {
@@ -992,15 +720,10 @@
                 if (data && data.title) {
                     bookTitle = data.title.toLowerCase().replace(/\s+/g, '-');
                 }
-            } catch (error) {
-                console.error('Error fetching title:', error);
-            }
+            } catch (e) {}
 
             const filename = `${bookTitle}-${dateStr}`;
-            await exportAsDOCX(text, filename);
-        });
-
-        async function exportAsDOCX(text, filename) {
+            
             showNotification('DOCX wordt voorbereid...');
             
             const docxContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -1018,148 +741,24 @@
             const blob = new Blob([docxContent], { 
                 type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
             });
-            downloadBlob(blob, `${filename}.docx`);
-            showNotification('Geëxporteerd als DOCX');
-        }
-
-        function downloadBlob(blob, filename) {
+            
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = filename;
+            link.download = `${filename}.docx`;
             link.click();
             URL.revokeObjectURL(url);
-        }
-
-        getFeedbackBtn.addEventListener('click', async () => {
-            const text = draftText.value.trim();
             
-            if (!text) {
-                feedbackContent.innerHTML = '<p>Schrijf eerst wat tekst</p>';
-                feedbackContent.classList.remove('empty', 'loading');
-                return;
-            }
-
-            getFeedbackBtn.disabled = true;
-            feedbackContent.classList.add('loading');
-            feedbackContent.classList.remove('empty');
-            feedbackContent.innerHTML = `
-                <div>
-                    <div class="loading-dots"><span></span><span></span><span></span></div>
-                    Aan het analyseren...
-                </div>
-            `;
-
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-                const response = await fetch(`${API_URL}/api/feedback`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: text }),
-                    signal: controller.signal,
-                    mode: 'cors'
-                });
-
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                if (data.success && data.feedback) {
-                    displayFeedback(data.feedback);
-                } else {
-                    throw new Error('Geen feedback ontvangen');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                
-                let errorMessage = 'Er ging iets mis. ';
-                if (error.name === 'AbortError') {
-                    errorMessage += 'Timeout - probeer opnieuw.';
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage += `Backend wekt op (30 sec), probeer opnieuw...`;
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                feedbackContent.innerHTML = `<p>${errorMessage}</p>`;
-            } finally {
-                feedbackContent.classList.remove('loading');
-                getFeedbackBtn.disabled = false;
-            }
+            showNotification('Geëxporteerd!');
         });
 
-        function displayFeedback(feedback) {
-            const cleaned = feedback
-                .replace(/\*\*/g, '')
-                .replace(/\*/g, '')
-                .replace(/###/g, '')
-                .replace(/##/g, '')
-                .replace(/#/g, '')
-                .replace(/^[\d\-\•\.]+\s*/gm, '');
-            
-            const lines = cleaned.split('\n').filter(line => line.trim());
-            let html = '';
-            
-            lines.forEach(line => {
-                const trimmed = line.trim();
-                if (trimmed) {
-                    if (trimmed.length < 50 && !trimmed.endsWith('.')) {
-                        html += `<p><strong>${trimmed}</strong></p>`;
-                    } else {
-                        html += `<p>${trimmed}</p>`;
-                    }
-                }
-            });
-            
-            feedbackContent.innerHTML = html || '<p>Geen feedback beschikbaar</p>';
-        }
-
-        moveToFinalBtn.addEventListener('click', () => {
-            const text = draftText.value.trim();
-            
-            if (!text) {
-                showNotification('Geen tekst om toe te voegen');
-                return;
-            }
-
-            if (finalText.value.trim()) {
-                finalText.value += '\n\n' + text;
-            } else {
-                finalText.value = text;
-            }
-
-            draftText.value = '';
-            updateCount(draftText, draftCount);
-            updateCount(finalText, finalCount);
-
-            feedbackContent.innerHTML = 'Klaar voor het volgende stuk';
-            feedbackContent.classList.add('empty');
-
-            showNotification('Toegevoegd aan finaal verhaal');
-            autoSave();
-        });
-
-        // Keyboard shortcuts removed - use header buttons
-
-        // Versions modal
-        const versionsModal = document.getElementById('versionsModal');
-        const closeVersions = document.getElementById('closeVersions');
-
-        versionsBtn.addEventListener('click', async () => {
-            versionsModal.classList.add('show');
+        document.getElementById('showVersionsBtn').addEventListener('click', async () => {
+            document.getElementById('versionsModal').classList.add('show');
             await loadVersions();
         });
 
-        closeVersions.addEventListener('click', () => {
-            versionsModal.classList.remove('show');
+        document.getElementById('closeVersionsBtn').addEventListener('click', () => {
+            document.getElementById('versionsModal').classList.remove('show');
         });
 
         async function loadVersions() {
@@ -1175,7 +774,7 @@
                     .limit(20);
                 
                 if (!data || data.length === 0) {
-                    versionsList.innerHTML = '<p style="text-align:center;color:var(--text-dim);padding:2rem;">Nog geen versies opgeslagen.<br>Versies worden automatisch aangemaakt!</p>';
+                    versionsList.innerHTML = '<p style="text-align:center;color:var(--text-dim);padding:2rem;">Nog geen versies</p>';
                     return;
                 }
                 
@@ -1188,17 +787,16 @@
                         <div class="version-stats">
                             Draft: ${countWords(v.draft_text)} woorden | Final: ${countWords(v.final_text)} woorden
                         </div>
-                        <button class="btn-restore" onclick="window.restoreVersion('${v.id}')">Herstel deze versie</button>
+                        <button onclick="window.restoreVersion('${v.id}')">Herstel</button>
                     </div>
                 `).join('');
             } catch (error) {
-                console.error('Versions error:', error);
-                versionsList.innerHTML = '<p style="color:#ff6b6b;">Fout bij laden versies</p>';
+                versionsList.innerHTML = '<p style="color:#ff6b6b;">Fout bij laden</p>';
             }
         }
 
         window.restoreVersion = async function(versionId) {
-            if (!confirm('Deze versie herstellen? Je huidige tekst wordt overschreven.')) return;
+            if (!confirm('Deze versie herstellen?')) return;
             
             try {
                 const { data } = await supabase
@@ -1213,17 +811,15 @@
                     updateCount(draftText, draftCount);
                     updateCount(finalText, finalCount);
                     await saveToSupabase();
-                    versionsModal.classList.remove('show');
+                    document.getElementById('versionsModal').classList.remove('show');
                     showNotification('Versie hersteld!');
                 }
             } catch (error) {
-                console.error('Restore error:', error);
                 showNotification('Fout bij herstellen');
             }
         }
 
-        let snapshotInterval;
-        async function createSnapshot() {
+        setInterval(async () => {
             if (!storyId) return;
             
             try {
@@ -1247,18 +843,8 @@
                     .from('stories')
                     .update({ current_version: newVersion })
                     .eq('id', storyId);
-
-                console.log('Snapshot created:', newVersion);
-            } catch (error) {
-                console.error('Snapshot error:', error);
-            }
-        }
-
-        snapshotInterval = setInterval(createSnapshot, 5 * 60 * 1000);
-
-        window.addEventListener('beforeunload', () => {
-            clearInterval(snapshotInterval);
-        });
+            } catch (e) {}
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>
