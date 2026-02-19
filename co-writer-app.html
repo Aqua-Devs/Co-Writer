@@ -436,6 +436,55 @@
             transform: translateY(0);
             opacity: 1;
         }
+
+        .export-dropdown {
+            position: relative;
+        }
+
+        .export-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--surface);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+            min-width: 150px;
+        }
+
+        .export-menu.show {
+            display: block;
+        }
+
+        .export-option {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            border-radius: 0;
+        }
+
+        .export-option:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+
+        .export-option:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .export-option:hover {
+            background: var(--accent-bg);
+            color: var(--accent-soft);
+        }
     </style>
 </head>
 <body>
@@ -498,6 +547,14 @@
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
                             <button id="openBtn">📂 Open</button>
                             <button class="btn-small-primary" id="saveBtn">💾 Save</button>
+                            <div class="export-dropdown">
+                                <button class="btn-small-primary" id="exportBtn">📤 Export</button>
+                                <div class="export-menu" id="exportMenu">
+                                    <button class="export-option" data-format="txt">Als TXT</button>
+                                    <button class="export-option" data-format="docx">Als DOCX</button>
+                                    <button class="export-option" data-format="pdf">Als PDF</button>
+                                </div>
+                            </div>
                             <div class="word-count" id="finalCount">0 woorden</div>
                         </div>
                     </div>
@@ -777,6 +834,146 @@
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
+        }
+
+        // Export dropdown
+        const exportBtn = document.getElementById('exportBtn');
+        const exportMenu = document.getElementById('exportMenu');
+
+        exportBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            exportMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            exportMenu.classList.remove('show');
+        });
+
+        // Export handlers
+        document.querySelectorAll('.export-option').forEach(option => {
+            option.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const format = e.target.dataset.format;
+                await exportBook(format);
+                exportMenu.classList.remove('show');
+            });
+        });
+
+        async function exportBook(format) {
+            const text = finalText.value;
+            
+            if (!text.trim()) {
+                showNotification('Geen tekst om te exporteren');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            
+            // Get book title from Supabase
+            let bookTitle = 'verhaal';
+            try {
+                const { data } = await supabase
+                    .from('stories')
+                    .select('title')
+                    .eq('id', storyId)
+                    .single();
+                if (data && data.title) {
+                    bookTitle = data.title.toLowerCase().replace(/\s+/g, '-');
+                }
+            } catch (error) {
+                console.error('Error fetching title:', error);
+            }
+
+            const filename = `${bookTitle}-${dateStr}`;
+
+            try {
+                if (format === 'txt') {
+                    await exportAsTXT(text, filename);
+                } else if (format === 'docx') {
+                    await exportAsDOCX(text, filename);
+                } else if (format === 'pdf') {
+                    await exportAsPDF(text, filename);
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                showNotification(`Fout bij exporteren als ${format.toUpperCase()}`);
+            }
+        }
+
+        async function exportAsTXT(text, filename) {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            downloadBlob(blob, `${filename}.txt`);
+            showNotification('Geëxporteerd als TXT');
+        }
+
+        async function exportAsDOCX(text, filename) {
+            // Use docx library from CDN
+            showNotification('DOCX wordt voorbereid...');
+            
+            // Simple DOCX generation using zip
+            const docxContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?mso-application progid="Word.Document"?>
+<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml">
+    <w:body>
+        <w:p>
+            <w:r>
+                <w:t>${text.replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
+            </w:r>
+        </w:p>
+    </w:body>
+</w:wordDocument>`;
+
+            const blob = new Blob([docxContent], { 
+                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
+            });
+            downloadBlob(blob, `${filename}.docx`);
+            showNotification('Geëxporteerd als DOCX');
+        }
+
+        async function exportAsPDF(text, filename) {
+            showNotification('PDF wordt voorbereid...');
+            
+            // Use jsPDF from CDN
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+            
+            script.onload = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Add text with line breaks
+                const lines = doc.splitTextToSize(text, 180);
+                let y = 20;
+                
+                lines.forEach(line => {
+                    if (y > 280) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    doc.text(line, 15, y);
+                    y += 7;
+                });
+                
+                doc.save(`${filename}.pdf`);
+                showNotification('Geëxporteerd als PDF');
+            };
+            
+            script.onerror = () => {
+                showNotification('Fout bij laden PDF library');
+            };
+            
+            document.head.appendChild(script);
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
         }
 
         // AI Feedback
