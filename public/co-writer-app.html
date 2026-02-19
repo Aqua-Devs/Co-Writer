@@ -43,7 +43,7 @@
         }
 
         header {
-            padding: 1.5rem 2rem;
+            padding: 1rem 2rem;
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--border);
@@ -65,11 +65,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 2rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
         }
 
         h1 {
             font-family: 'DM Serif Display', serif;
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 400;
             color: var(--text);
             letter-spacing: -0.02em;
@@ -77,27 +84,26 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            white-space: nowrap;
         }
 
-        .subtitle {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text-dim);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-top: 0.25rem;
-        }
-
-        .user-info {
+        .header-menu {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .user-email {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
+            white-space: nowrap;
         }
 
         .btn-logout {
@@ -559,18 +565,27 @@
     <div class="container">
         <header>
             <div class="header-content">
-                <div>
+                <div class="header-left">
                     <h1>Co-Writer</h1>
-                    <div class="subtitle">AI-Powered Writing Assistant</div>
-                </div>
-                <div class="user-info">
-                    <div class="status-indicator">
-                        <div class="status-dot" id="statusDot"></div>
-                        <span id="statusText">Opgeslagen</span>
+                    <div class="header-menu">
+                        <button id="getFeedbackBtnHeader">Analyseer</button>
+                        <button id="moveToFinalBtnHeader">Voeg Toe</button>
+                        <button id="openBtnHeader">📂 Open</button>
+                        <button class="btn-small-primary" id="saveBtnHeader">💾 Save</button>
+                        <div class="export-dropdown">
+                            <button class="btn-small-primary" id="exportBtnHeader">📤 Export</button>
+                            <div class="export-menu" id="exportMenuHeader">
+                                <button class="export-option" data-format="txt">Als TXT</button>
+                                <button class="export-option" data-format="docx">Als DOCX</button>
+                                <button class="export-option" data-format="pdf">Als PDF</button>
+                            </div>
+                        </div>
+                        <button id="versionsBtnHeader">🕐 Versies</button>
                     </div>
+                </div>
+                <div class="header-right">
                     <div class="user-email" id="userEmail"></div>
-                    <button class="btn-logout" id="versionsBtn">🕐 Versies</button>
-                    <button class="btn-logout" onclick="window.location.href='dashboard.html'">← Mijn Boeken</button>
+                    <button class="btn-logout" onclick="window.location.href='dashboard.html'">← Boeken</button>
                     <button class="btn-logout" id="logoutBtn">Uitloggen</button>
                 </div>
             </div>
@@ -581,11 +596,7 @@
                 <div class="panel">
                     <div class="panel-header">
                         <div class="panel-title">Draft</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button id="getFeedbackBtn">Analyseer</button>
-                            <button id="moveToFinalBtn">Voeg Toe</button>
-                            <div class="word-count" id="draftCount">0 woorden</div>
-                        </div>
+                        <div class="word-count" id="draftCount">0 woorden</div>
                     </div>
                     <textarea 
                         id="draftText" 
@@ -608,23 +619,9 @@
 
             <div class="column">
                 <div class="panel">
-                    <div class="panel-header" style="align-items: flex-start;">
+                    <div class="panel-header">
                         <div class="panel-title">Finaal Verhaal</div>
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <div class="word-count" id="finalCount">0 woorden</div>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
-                        <button id="openBtn">📂 Open</button>
-                        <button class="btn-small-primary" id="saveBtn">💾 Save</button>
-                        <div class="export-dropdown">
-                            <button class="btn-small-primary" id="exportBtn">📤 Export</button>
-                            <div class="export-menu" id="exportMenu">
-                                <button class="export-option" data-format="txt">Als TXT</button>
-                                <button class="export-option" data-format="docx">Als DOCX</button>
-                                <button class="export-option" data-format="pdf">Als PDF</button>
-                            </div>
-                        </div>
+                        <div class="word-count" id="finalCount">0 woorden</div>
                     </div>
                     <textarea 
                         id="finalText" 
@@ -684,16 +681,17 @@
         const draftText = document.getElementById('draftText');
         const finalText = document.getElementById('finalText');
         const feedbackContent = document.getElementById('feedbackContent');
-        const getFeedbackBtn = document.getElementById('getFeedbackBtn');
-        const moveToFinalBtn = document.getElementById('moveToFinalBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const openBtn = document.getElementById('openBtn');
+        const getFeedbackBtn = document.getElementById('getFeedbackBtnHeader');
+        const moveToFinalBtn = document.getElementById('moveToFinalBtnHeader');
+        const saveBtn = document.getElementById('saveBtnHeader');
+        const openBtn = document.getElementById('openBtnHeader');
         const fileInput = document.getElementById('fileInput');
         const notification = document.getElementById('notification');
         const draftCount = document.getElementById('draftCount');
         const finalCount = document.getElementById('finalCount');
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
+        const exportBtn = document.getElementById('exportBtnHeader');
+        const exportMenu = document.getElementById('exportMenuHeader');
+        const versionsBtn = document.getElementById('versionsBtnHeader');
 
         function countWords(text) {
             return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -717,13 +715,9 @@
         let saveTimeout;
         async function autoSave() {
             clearTimeout(saveTimeout);
-            statusDot.classList.add('saving');
-            statusText.textContent = 'Aan het opslaan...';
             
             saveTimeout = setTimeout(async () => {
                 await saveToSupabase();
-                statusDot.classList.remove('saving');
-                statusText.textContent = 'Opgeslagen';
             }, 2000);
         }
 
@@ -1258,7 +1252,6 @@
         });
 
         const versionsModal = document.getElementById('versionsModal');
-        const versionsBtn = document.getElementById('versionsBtn');
         const closeVersions = document.getElementById('closeVersions');
 
         versionsBtn.addEventListener('click', async () => {

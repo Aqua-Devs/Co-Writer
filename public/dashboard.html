@@ -381,29 +381,6 @@
         <h2 class="page-title">Mijn Boeken</h2>
         <p class="page-subtitle">Selecteer een boek om verder te schrijven, of start een nieuw project</p>
 
-        <!-- Stats Widget -->
-        <div class="stats-widget">
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value" id="currentStreak">0</div>
-                    <div class="stat-label">Dag Streak</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="todayWords">0</div>
-                    <div class="stat-label">Woorden Vandaag</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                    </div>
-                    <div class="goal-text">Doel: <span id="dailyGoal">500</span> woorden</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="totalWords">0</div>
-                    <div class="stat-label">Totaal Geschreven</div>
-                </div>
-            </div>
-            <div class="motivation" id="motivationalMessage"></div>
-        </div>
-
         <div class="actions">
             <button class="btn-new" id="newProjectBtn">+ Nieuw Boek</button>
         </div>
@@ -454,7 +431,6 @@
             currentUser = session.user;
             document.getElementById('userEmail').textContent = currentUser.email;
             
-            await loadUserStats();
             loadProjects();
         }
 
