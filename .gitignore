@@ -1,0 +1,15 @@
+cd C:\dev\co-writer
+
+# Download en hernoem
+# Of maak handmatig aan:
+notepad .gitignore
+```
+
+Plak de content en save.
+
+## ✅ **Stap 2: Verify**
+
+Check of je nu hebt:
+```
+C:\dev\co-writer\.gitignore   ← Moet bestaan!
+C:\dev\co-writer\.env          ← Mag NIET naar Git
