@@ -571,15 +571,7 @@
                         <button id="getFeedbackBtnHeader">Analyseer</button>
                         <button id="moveToFinalBtnHeader">Voeg Toe</button>
                         <button id="openBtnHeader">📂 Open</button>
-                        <button class="btn-small-primary" id="saveBtnHeader">💾 Save</button>
-                        <div class="export-dropdown">
-                            <button class="btn-small-primary" id="exportBtnHeader">📤 Export</button>
-                            <div class="export-menu" id="exportMenuHeader">
-                                <button class="export-option" data-format="txt">Als TXT</button>
-                                <button class="export-option" data-format="docx">Als DOCX</button>
-                                <button class="export-option" data-format="pdf">Als PDF</button>
-                            </div>
-                        </div>
+                        <button class="btn-small-primary" id="exportBtnHeader">📤 Export Word</button>
                         <button id="versionsBtnHeader">🕐 Versies</button>
                     </div>
                 </div>
@@ -683,14 +675,12 @@
         const feedbackContent = document.getElementById('feedbackContent');
         const getFeedbackBtn = document.getElementById('getFeedbackBtnHeader');
         const moveToFinalBtn = document.getElementById('moveToFinalBtnHeader');
-        const saveBtn = document.getElementById('saveBtnHeader');
         const openBtn = document.getElementById('openBtnHeader');
+        const exportBtn = document.getElementById('exportBtnHeader');
         const fileInput = document.getElementById('fileInput');
         const notification = document.getElementById('notification');
         const draftCount = document.getElementById('draftCount');
         const finalCount = document.getElementById('finalCount');
-        const exportBtn = document.getElementById('exportBtnHeader');
-        const exportMenu = document.getElementById('exportMenuHeader');
         const versionsBtn = document.getElementById('versionsBtnHeader');
 
         function countWords(text) {
@@ -981,25 +971,7 @@
             }, 3000);
         }
 
-        exportBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            exportMenu.classList.toggle('show');
-        });
-
-        document.addEventListener('click', () => {
-            exportMenu.classList.remove('show');
-        });
-
-        document.querySelectorAll('.export-option').forEach(option => {
-            option.addEventListener('click', async (e) => {
-                e.stopPropagation();
-                const format = e.target.dataset.format;
-                await exportBook(format);
-                exportMenu.classList.remove('show');
-            });
-        });
-
-        async function exportBook(format) {
+        exportBtn.addEventListener('click', async () => {
             const text = finalText.value;
             
             if (!text.trim()) {
@@ -1025,26 +997,8 @@
             }
 
             const filename = `${bookTitle}-${dateStr}`;
-
-            try {
-                if (format === 'txt') {
-                    await exportAsTXT(text, filename);
-                } else if (format === 'docx') {
-                    await exportAsDOCX(text, filename);
-                } else if (format === 'pdf') {
-                    await exportAsPDF(text, filename);
-                }
-            } catch (error) {
-                console.error('Export error:', error);
-                showNotification(`Fout bij exporteren als ${format.toUpperCase()}`);
-            }
-        }
-
-        async function exportAsTXT(text, filename) {
-            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-            downloadBlob(blob, `${filename}.txt`);
-            showNotification('Geëxporteerd als TXT');
-        }
+            await exportAsDOCX(text, filename);
+        });
 
         async function exportAsDOCX(text, filename) {
             showNotification('DOCX wordt voorbereid...');
@@ -1066,39 +1020,6 @@
             });
             downloadBlob(blob, `${filename}.docx`);
             showNotification('Geëxporteerd als DOCX');
-        }
-
-        async function exportAsPDF(text, filename) {
-            showNotification('PDF wordt voorbereid...');
-            
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-            
-            script.onload = () => {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                const lines = doc.splitTextToSize(text, 180);
-                let y = 20;
-                
-                lines.forEach(line => {
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
-                    }
-                    doc.text(line, 15, y);
-                    y += 7;
-                });
-                
-                doc.save(`${filename}.pdf`);
-                showNotification('Geëxporteerd als PDF');
-            };
-            
-            script.onerror = () => {
-                showNotification('Fout bij laden PDF library');
-            };
-            
-            document.head.appendChild(script);
         }
 
         function downloadBlob(blob, filename) {
