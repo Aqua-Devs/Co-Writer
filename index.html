@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Co-Writer - Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -235,15 +234,14 @@
         </div>
     </div>
 
-    <script>
-        // SUPABASE CONFIGURATIE
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
         const SUPABASE_URL = 'https://sdfynuvanetpmritvaze.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZnludXZhbmV0cG1yaXR2YXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDYxODMsImV4cCI6MjA4NzA4MjE4M30.T5LBYzSUHlY8jB1ty-6WLtO4Zh8xVRyQpFhGQETYnKs';
 
-        // Initialize Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Elements
         const loginTab = document.getElementById('loginTab');
         const signupTab = document.getElementById('signupTab');
         const loginForm = document.getElementById('loginForm');
@@ -251,7 +249,6 @@
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
 
-        // Check if already logged in
         checkAuth();
 
         async function checkAuth() {
@@ -261,7 +258,6 @@
             }
         }
 
-        // Tab switching
         loginTab.addEventListener('click', () => {
             loginTab.classList.add('active');
             signupTab.classList.remove('active');
@@ -278,7 +274,6 @@
             clearMessages();
         });
 
-        // Login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearMessages();
@@ -290,24 +285,25 @@
             btn.disabled = true;
             btn.textContent = 'Bezig met inloggen...';
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
 
-            if (error) {
-                showError(error.message);
-                btn.disabled = false;
-                btn.textContent = 'Inloggen';
-            } else {
+                if (error) throw error;
+                
                 showSuccess('Succesvol ingelogd! Doorverwijzen...');
                 setTimeout(() => {
                     window.location.href = 'co-writer-app.html';
                 }, 1000);
+            } catch (error) {
+                showError(error.message);
+                btn.disabled = false;
+                btn.textContent = 'Inloggen';
             }
         });
 
-        // Signup
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearMessages();
@@ -325,20 +321,22 @@
             btn.disabled = true;
             btn.textContent = 'Account aanmaken...';
 
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
 
-            if (error) {
-                showError(error.message);
-                btn.disabled = false;
-                btn.textContent = 'Account Aanmaken';
-            } else {
+                if (error) throw error;
+                
                 showSuccess('Account aangemaakt! Je wordt doorgestuurd...');
                 setTimeout(() => {
                     window.location.href = 'co-writer-app.html';
                 }, 2000);
+            } catch (error) {
+                showError(error.message);
+                btn.disabled = false;
+                btn.textContent = 'Account Aanmaken';
             }
         });
 
