@@ -501,6 +501,7 @@
                         <span id="statusText">Opgeslagen</span>
                     </div>
                     <div class="user-email" id="userEmail"></div>
+                    <button class="btn-logout" id="versionsBtn" style="margin-right: 0.5rem;">🕐 Versies</button>
                     <button class="btn-logout" onclick="window.location.href='dashboard.html'" style="margin-right: 0.5rem;">← Mijn Boeken</button>
                     <button class="btn-logout" id="logoutBtn">Uitloggen</button>
                 </div>
@@ -691,6 +692,9 @@
                     finalText.value = data.final_text || '';
                     updateCount(draftText, draftCount);
                     updateCount(finalText, finalCount);
+                    
+                    // Initialize lastWordCount with current total
+                    lastWordCount = countWords(draftText.value) + countWords(finalText.value);
                 }
             } catch (error) {
                 console.error('Load error:', error);
