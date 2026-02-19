@@ -641,7 +641,13 @@
                     lines.forEach(line => {
                         const trimmed = line.trim();
                         if (trimmed) {
-                            html += `<p>${trimmed}</p>`;
+                            // Detect if it's a header (short line without period, or numbered)
+                            const isHeader = (trimmed.length < 50 && !trimmed.endsWith('.')) || /^\d+\.\s/.test(trimmed);
+                            if (isHeader) {
+                                html += `<p style="color: var(--accent-soft); font-weight: 600; margin-top: 1.5rem;">${trimmed}</p>`;
+                            } else {
+                                html += `<p>${trimmed}</p>`;
+                            }
                         }
                     });
                     
