@@ -542,20 +542,22 @@
             <!-- Kolom 3: Final -->
             <div class="column">
                 <div class="panel">
-                    <div class="panel-header">
+                    <div class="panel-header" style="align-items: flex-start;">
                         <div class="panel-title">Finaal Verhaal</div>
                         <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <button id="openBtn">📂 Open</button>
-                            <button class="btn-small-primary" id="saveBtn">💾 Save</button>
-                            <div class="export-dropdown">
-                                <button class="btn-small-primary" id="exportBtn">📤 Export</button>
-                                <div class="export-menu" id="exportMenu">
-                                    <button class="export-option" data-format="txt">Als TXT</button>
-                                    <button class="export-option" data-format="docx">Als DOCX</button>
-                                    <button class="export-option" data-format="pdf">Als PDF</button>
-                                </div>
-                            </div>
                             <div class="word-count" id="finalCount">0 woorden</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                        <button id="openBtn">📂 Open</button>
+                        <button class="btn-small-primary" id="saveBtn">💾 Save</button>
+                        <div class="export-dropdown">
+                            <button class="btn-small-primary" id="exportBtn">📤 Export</button>
+                            <div class="export-menu" id="exportMenu">
+                                <button class="export-option" data-format="txt">Als TXT</button>
+                                <button class="export-option" data-format="docx">Als DOCX</button>
+                                <button class="export-option" data-format="pdf">Als PDF</button>
+                            </div>
                         </div>
                     </div>
                     <textarea 
@@ -696,6 +698,8 @@
         }
 
         // Save to Supabase
+        let lastWordCount = 0;
+        
         async function saveToSupabase() {
             try {
                 const storyData = {
@@ -724,9 +728,97 @@
                     if (error) throw error;
                     storyId = data.id;
                 }
+
+                // Track writing progress
+                await updateWritingStats();
+                
             } catch (error) {
                 console.error('Save error:', error);
                 showNotification('Fout bij opslaan');
+            }
+        }
+
+        async function updateWritingStats() {
+            try {
+                const currentWordCount = countWords(draftText.value) + countWords(finalText.value);
+                const wordsAdded = Math.max(0, currentWordCount - lastWordCount);
+                
+                if (wordsAdded === 0) return;
+
+                lastWordCount = currentWordCount;
+                const today = new Date().toISOString().split('T')[0];
+
+                // Update or insert today's stats
+                const { data: existingStats } = await supabase
+                    .from('writing_stats')
+                    .select('words_written')
+                    .eq('user_id', currentUser.id)
+                    .eq('date', today)
+                    .single();
+
+                if (existingStats) {
+                    await supabase
+                        .from('writing_stats')
+                        .update({ words_written: existingStats.words_written + wordsAdded })
+                        .eq('user_id', currentUser.id)
+                        .eq('date', today);
+                } else {
+                    await supabase
+                        .from('writing_stats')
+                        .insert([{
+                            user_id: currentUser.id,
+                            date: today,
+                            words_written: wordsAdded
+                        }]);
+                }
+
+                // Update user settings
+                await updateStreakAndTotal(wordsAdded, today);
+
+            } catch (error) {
+                console.error('Stats update error:', error);
+            }
+        }
+
+        async function updateStreakAndTotal(wordsAdded, today) {
+            try {
+                const { data: settings } = await supabase
+                    .from('user_settings')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+
+                if (!settings) return;
+
+                let newStreak = settings.current_streak;
+                const lastWrite = settings.last_write_date;
+
+                // Calculate streak
+                if (lastWrite !== today) {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                    if (lastWrite === yesterdayStr) {
+                        newStreak += 1; // Continue streak
+                    } else if (!lastWrite || lastWrite < yesterdayStr) {
+                        newStreak = 1; // Reset streak
+                    }
+                }
+
+                await supabase
+                    .from('user_settings')
+                    .update({
+                        current_streak: newStreak,
+                        longest_streak: Math.max(newStreak, settings.longest_streak),
+                        total_words_written: settings.total_words_written + wordsAdded,
+                        last_write_date: today,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('user_id', currentUser.id);
+
+            } catch (error) {
+                console.error('Streak update error:', error);
             }
         }
 
