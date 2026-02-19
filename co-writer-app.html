@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Co-Writer</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -514,14 +513,16 @@
 
     <div class="notification" id="notification">Opgeslagen! 📄</div>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+        
         // CONFIGURATIE
         const API_URL = 'https://co-writer.onrender.com';
         const SUPABASE_URL = 'https://sdfynuvanetpmritvaze.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkZnludXZhbmV0cG1yaXR2YXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MDYxODMsImV4cCI6MjA4NzA4MjE4M30.T5LBYzSUHlY8jB1ty-6WLtO4Zh8xVRyQpFhGQETYnKs';
 
         // Initialize Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Check authentication
         let currentUser = null;
