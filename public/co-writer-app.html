@@ -728,34 +728,17 @@
                 }
             } catch (e) {}
 
-            const filename = `${bookTitle}-${dateStr}`;
+            const filename = `${bookTitle}-${dateStr}.txt`;
             
-            showNotification('DOCX wordt voorbereid...');
-            
-            const docxContent = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<?mso-application progid="Word.Document"?>
-<w:wordDocument xmlns:w="http://schemas.microsoft.com/office/word/2003/wordml">
-    <w:body>
-        <w:p>
-            <w:r>
-                <w:t>${text.replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
-            </w:r>
-        </w:p>
-    </w:body>
-</w:wordDocument>`;
-
-            const blob = new Blob([docxContent], { 
-                type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' 
-            });
-            
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `${filename}.docx`;
+            link.download = filename;
             link.click();
             URL.revokeObjectURL(url);
             
-            showNotification('Geëxporteerd!');
+            showNotification('Geëxporteerd als TXT!');
         });
 
         document.getElementById('showVersionsBtn').addEventListener('click', async () => {
